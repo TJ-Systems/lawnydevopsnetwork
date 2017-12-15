@@ -6,6 +6,6 @@ GOOGLE_ZONE=zone
 
 Deploys the following networks to GCP:
 
-172.100.10.0/28
-192.100.10.0/28
-10.100.10.0/28
+devopsExternal = 172.100.10.0/28
+devopsMgmt = 192.100.10.0/28
+devopsInternal = 10.100.10.0/28
