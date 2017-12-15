@@ -1,13 +1,13 @@
-"""Deploy Networks"""
 #! /usr/bin/python2.7
+"""Deploy Networks"""
 
 #Copyright 2017 lawny.co
 
 import argparse
-import time
 from six.moves import input
 import googleapiclient.discovery
 from oauth2client.client import GoogleCredentials
+
 CREDENTIALS = GoogleCredentials.get_application_default()
 
 COMPUTE = googleapiclient.discovery.build('compute', 'v1')
@@ -23,11 +23,10 @@ def list_networks(compute, project):
 def create_external_network(compute, project):
     """ Create the new external network """
     network_body = {
-        'name': 'devopsExternal',
+        'name': 'devops-external',
         'description': 'External network for devops stack',
-        'IPv4Range': '172.100.10.0/28',
-        'gatewayIPv4': '172.100.10.1',
-        'autoCreateSubnetworks': False,
+        'IPv4Range': '172.16.10.0/28',
+        'gatewayIPv4': '172.16.10.1',
         'routingConfig': {
             'routingMode': 'REGIONAL'
         }
@@ -42,11 +41,10 @@ def create_external_network(compute, project):
 def create_mgmt_network(compute, project):
     """ Create the new management network """
     network_body = {
-        'name': 'devopsMgmt',
+        'name': 'devops-mgmt',
         'description': 'Management network for devops stack',
-        'IPv4Range': '192.100.10.0/28',
-        'gatewayIPv4': '192.100.10.1',
-        'autoCreateSubnetworks': False,
+        'IPv4Range': '192.168.10.0/28',
+        'gatewayIPv4': '192.168.10.1',
         'routingConfig': {
             'routingMode': 'REGIONAL'
         }
@@ -61,11 +59,10 @@ def create_mgmt_network(compute, project):
 def create_internal_network(compute, project):
     """ Create the new internal network """
     network_body = {
-        'name': 'devopsInternal',
+        'name': 'devops-internal',
         'description': 'Internal network for devops stack',
         'IPv4Range': '10.100.10.0/28',
         'gatewayIPv4': '10.100.10.1',
-        'autoCreateSubnetworks': False,
         'routingConfig': {
             'routingMode': 'REGIONAL'
         }
@@ -76,24 +73,6 @@ def create_internal_network(compute, project):
         body=network_body).execute()
 # [END create_internal_network]
 
-# [START wait_for_operation]
-def wait_for_operation(compute, project, operation):
-    """ Check the status of the current operation """
-    print 'Waiting for operation to finish...'
-    while True:
-        result = compute.zoneOperations().get(
-            project=project,
-            operation=operation).execute()
-
-        if result['status'] == 'DONE':
-            print "done."
-            if 'error' in result:
-                raise Exception(result['error'])
-            return result
-
-        time.sleep(1)
-# [END wait_for_operation]
-
 # [START Build the networks]
 def main(project, wait=False):
     """ Execution of the steps """
@@ -101,18 +80,15 @@ def main(project, wait=False):
 
     print 'Creating external network...'
 
-    operation = create_external_network(compute, project)
-    wait_for_operation(compute, project, operation['name'])
+    create_external_network(compute, project)
 
     print 'Creating Mangement network...'
 
-    operation = create_mgmt_network(compute, project)
-    wait_for_operation(compute, project, operation['name'])
+    create_mgmt_network(compute, project)
 
     print 'Creating Internal network...'
 
-    operation = create_internal_network(compute, project)
-    wait_for_operation(compute, project, operation['name'])
+    create_internal_network(compute, project)
 
     networks = list_networks(compute, project)
 
